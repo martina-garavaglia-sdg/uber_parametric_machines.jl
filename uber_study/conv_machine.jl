@@ -76,7 +76,7 @@ xaxis!("Training epoch");
 savefig("visualization/losses/loss_conv_machine.png");
 
 
-m = model(x)
+m = model(x);
 # Heatmap for the last hour 
-heatmap(m[:,:,4360], color=:thermal, clims=(-1, 1))
+heatmap(m[:,:,4360], color=:thermal, clims=(0, 1))
 
