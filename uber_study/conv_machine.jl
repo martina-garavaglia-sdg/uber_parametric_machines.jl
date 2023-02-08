@@ -16,13 +16,13 @@ x,y = x_y_splitting(st_film);
 data = DataLoader((x, y));
 
 
-# (39, 39, 4367, 1, 1)
+# (39, 39, 4367, 1, 1), 4367 = 6 months minus 1 day
 # Dimensions
 dimensions = [1,2,4,8];
 
 machine = ConvMachine(dimensions, sigmoid; pad=(1,1,1,1,10,0)); #tanh, 5
 
-model = Flux.Chain(machine, Conv((1,1,1), sum(dimensions) => 1));
+model = Flux.Chain(machine, Conv((1,1,1), sum(dimensions) => 1)) |> f64;
 
 model = cpu(model);
 
@@ -38,7 +38,7 @@ epochs = Int64[]
 loss_on_train = Float64[]
 best_params = Float32[]
 
-for epoch in 1:1
+for epoch in 1:5
 
     # Train
     Flux.train!(loss, params, data, opt)
@@ -49,11 +49,11 @@ for epoch in 1:1
     @show loss(x, y)
 
     # Saving the best parameters
-    # if epoch > 1
-    #     if is_best(loss_on_train[epoch-1], loss_on_train[epoch])
-    #         best_params = params
-    #     end
-    # end
+    if epoch > 1
+        if is_best(loss_on_train[epoch-1], loss_on_train[epoch])
+            best_params = params
+        end
+    end
 end
 
 # Extract and add new trained parameters
@@ -80,3 +80,9 @@ m = model(x);
 # Heatmap for the last hour 
 heatmap(m[:,:,4360], color=:thermal, clims=(0, 1))
 
+
+# Visualization film for gif
+for i in 1:20
+    heatmap(x[:,:,i], color=:thermal, clims=(0, 1));
+    savefig("visualization/gif/data_hour_" * string(i) * ".png")
+end
