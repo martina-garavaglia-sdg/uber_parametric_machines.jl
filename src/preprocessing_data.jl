@@ -35,8 +35,8 @@ function make_histograms(data::DataFrame)
     lat_max = d[!,:Lat]
     lon_max = d[!,:Lon]
 
-    bins_lat = range(minimum(lat_max), maximum(lat_max), length=40)
-    bins_lon = range(minimum(lon_max), maximum(lon_max), length=40)
+    bins_lat = range(minimum(lat_max), maximum(lat_max), length=29)
+    bins_lon = range(minimum(lon_max), maximum(lon_max), length=29)
 
     film = []
 
