@@ -11,3 +11,5 @@ This repository is organized as follows:
 - Model initialization: convolutional machine is initialize within their parameters. The optimizers are choosen (Adam and LBFGS) as well as the loss functions (mse and mae). 
 - Training
 - Results visualization
+
+NB: a more in depth explanation can be found in this [repository](https://github.com/martina-garavaglia-sdg/master_thesis).
