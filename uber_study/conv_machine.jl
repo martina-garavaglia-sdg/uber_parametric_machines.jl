@@ -9,12 +9,18 @@ using uber_parametric_machines
 data_apr, data_may, data_jun, data_jul, data_aug, data_sep = load_data();
 
 film = make_6_months_film(data_apr, data_may, data_jun, data_jul, data_aug, data_sep);
-st_film = standardize_data(film);
+film_1_month = film[:,:,:,:] # 31:58, 31+20:58+20
 
-x,y = x_y_splitting(st_film);
+x = film[:,:,1:24*27,:]
+y = film[:,:, 25:24*28,:]
+x, max, min = standardize_data(x);
+y = standardize_data(y, max, min);
 
-x = x[:,:,1:648,:,:]
-y = y[:,:,25:672,:,:]
+x = x[11:50, 11:50,:,:]
+y = y[11:50, 11:50,:,:]
+
+x = Flux.unsqueeze(x, dims=4)
+y = Flux.unsqueeze(y, dims=4)
 
 data = DataLoader((x, y));
 
@@ -38,34 +44,34 @@ loss(x,y) = Flux.Losses.mse(model(x), y); #mse
 
 # Training and plotting
 epochs = Int64[]
-loss_on_train = Float64[]
+loss_on = Float64[]
 best_params = Float32[]
 
-for epoch in 201:400
+for epoch in 1:10
 
     # Train
     Flux.train!(loss, params, data, opt)
 
     # Saving loss for visualization
     push!(epochs, epoch)
-    push!(loss_on_train, loss(x, y))
+    push!(loss_on, loss(x, y))
     @show loss(x, y)
 
     # Saving the best parameters
-    # if epoch > 1
-    #     if is_best(loss_on_train[epoch-1], loss_on_train[epoch])
-    #         best_params = params
-    #     end
-    # end
+    if epoch > 1
+        if is_best(loss_on[epoch-1], loss_on[epoch])
+            best_params = params
+        end
+    end
 end
 
 # Extract and add new trained parameters
-# if isempty(best_params)
-#     best_params = params
-# end
+if isempty(best_params)
+    best_params = params
+end
 
 
-# Flux.loadparams!(model, best_params);
+Flux.loadparams!(model, best_params);
 
 
 ############################################
@@ -73,7 +79,7 @@ end
 ############################################
 
 # Loss
-plot(epochs, loss_on_train, legend=false, lw=2, ylims = (0,0.01));
+plot(epochs, loss_on, legend=false, lw=2, ylims = (0,0.01));
 title!("Convolutional machine - Loss");
 yaxis!("Loss");
 xaxis!("Training epochs");
@@ -82,14 +88,10 @@ savefig("visualization/1_month/loss_conv_machine.png");
 
 m = model(x);
 # Heatmap for the last hour 
-heatmap(m[2:end-1,2:end-1,305], color=:thermal, clims=(0, 0.02))
+heatmap(m[2:end-1,2:end-1,630], color=:thermal, clims=(0, 0.02))
+savefig("visualization/1_month/hour_630_prediction.png");
 
 
-# Visualization film for gif
-for i in 1:24
-    heatmap(x[:,:,i], color=:thermal, clims=(0, 0.2));
-    savefig("visualization/gif/data_hour_" * string(i) * ".png")
-end
 
 
 ##############################################

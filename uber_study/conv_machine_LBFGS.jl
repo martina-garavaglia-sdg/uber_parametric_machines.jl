@@ -39,7 +39,7 @@ params_lbfgs = Flux.params(model_lbfgs);
 
 # LBFGS
 lossfun, gradfun, fg!, p0 = optfuns(loss_lbfgs, params_lbfgs)
-res = Optim.optimize(Optim.only_fg!(fg!), p0, Optim.Options(iterations=100, store_trace=true))
+res = Optim.optimize(Optim.only_fg!(fg!), p0, Optim.Options(iterations=400, store_trace=true))
 
 best_params_PM_lbfgs = res.minimizer
 #copy flattened optimized params 

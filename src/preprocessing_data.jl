@@ -35,8 +35,8 @@ function make_histograms(data::DataFrame)
     lat_max = d[!,:Lat]
     lon_max = d[!,:Lon]
 
-    bins_lat = range(minimum(lat_max), maximum(lat_max), length=29)
-    bins_lon = range(minimum(lon_max), maximum(lon_max), length=29)
+    bins_lat = range(minimum(lat_max), maximum(lat_max), length=101)
+    bins_lon = range(minimum(lon_max), maximum(lon_max), length=101)
 
     film = []
 
@@ -78,21 +78,16 @@ function make_6_months_film(data1::DataFrame, data2::DataFrame, data3::DataFrame
 end
 
 
-function standardize_data(film::Array)
-    f = copy(film)
+function standardize_data(f::Array)
 
     M = maximum(f)
     m = minimum(f)
     st_data = (f.-m) ./ (M-m)
     
-    return st_data
+    return st_data, M, m
 end
 
 
-function x_y_splitting(film::Array)
-    f = copy(film)
-    x = film[:,:,1:end-24,:,:]
-    y = film[:,:,25:end,:,:]
-
-    return x,y
+function standardize_data(f::Array, M, m)
+    return (f.-m) ./ (M-m)
 end
