@@ -17,8 +17,7 @@ data_apr, data_may, data_jun, data_jul, data_aug, data_sep = load_data()
 
 
 
-function grouped_data(data::DataFrame)
-    d = copy(data)
+function grouped_data(d::DataFrame)
     d.DateTime = DateTime.(d.DateTime, "mm/dd/yyyy HH:MM:SS")
     d[!,:hours] = hour.(d[!,:DateTime])
     d[!,:days] = day.(d[!,:DateTime]);
@@ -28,8 +27,7 @@ end
 
 
 
-function make_histograms(data::DataFrame)
-    d = copy(data)
+function make_histograms(d::DataFrame)
     df_grouped = grouped_data(d)
 
     lat_max = d[!,:Lat]
@@ -77,7 +75,7 @@ function make_6_months_film(data1::DataFrame, data2::DataFrame, data3::DataFrame
     return film
 end
 
-
+# for training set
 function standardize_data(f::Array)
 
     M = maximum(f)
@@ -87,7 +85,7 @@ function standardize_data(f::Array)
     return st_data, M, m
 end
 
-
+# for test set
 function standardize_data(f::Array, M, m)
     return (f.-m) ./ (M-m)
 end

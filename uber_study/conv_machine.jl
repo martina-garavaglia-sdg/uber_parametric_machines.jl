@@ -164,8 +164,8 @@ plot!(error_hour_mae_test, lab="Test error")
 
 error_naive1_cell_test = []
 
-for i in 1:27
-    for j in 1:27
+for i in 1:40
+    for j in 1:40
         push!(error_naive1_cell_test, Flux.Losses.mae(zeros(size(y[i,j,(d_test-1)*h:d_test*h,:,:])), y[i,j,(d_test-1)*h:d_test*h,:,:]))
     end
 end
@@ -175,8 +175,8 @@ error_naive1_cell_test
 
 error_naive2_cell_test = []
 
-for i in 1:27
-    for j in 1:27
+for i in 1:40
+    for j in 1:40
         push!(error_naive2_cell_test, Flux.Losses.mae(y[i,j,h*(d_test-2):h*(d_test-1),:], y[i,j,h*(d_test-1):h*d_test,:,:]))
     end
 end
@@ -186,8 +186,8 @@ error_naive2_cell_test
 
 error_cell_mae_test = []
 
-for i in 1:27
-    for j in 1:27
+for i in 1:40
+    for j in 1:40
         push!(error_cell_mae_test, Flux.Losses.mae(m[i,j,h*(d_test-1):h*d_test,:], y[i,j,h*(d_test-1):h*d_test,:,:]))
     end
 end

@@ -11,17 +11,23 @@ using uber_parametric_machines
 data_apr, data_may, data_jun, data_jul, data_aug, data_sep = load_data();
 
 film = make_6_months_film(data_apr, data_may, data_jun, data_jul, data_aug, data_sep);
-st_film = standardize_data(film);
+film_1_month = film[:,:,:,:] 
 
-x,y = x_y_splitting(st_film);
+x_lbfgs = film[:,:,1:24*27,:]
+y_lbfgs = film[:,:, 25:24*28,:]
+x_lbfgs, max, min = standardize_data(x_lbfgs);
+y_lbfgs = standardize_data(y_lbfgs, max, min);
 
-x_lbfgs = x[:,:,1:648,:,:]
-y_lbfgs = x[:,:,25:672,:,:]
+x_lbfgs = x_lbfgs[11:50, 11:50,:,:]
+y_lbfgs = y_lbfgs[11:50, 11:50,:,:]
+
+x_lbfgs = Flux.unsqueeze(x_lbfgs, dims=4)
+y_lbfgs = Flux.unsqueeze(y_lbfgs, dims=4)
 
 data = DataLoader((x_lbfgs, y_lbfgs));
 
 
-# (39, 39, 4367, 1, 1), 4367 = 6 months minus 1 day
+# (40, 40, 648, 1, 1), 648=24*27
 # Dimensions
 dimensions = [1,2,4,8];
 
@@ -39,7 +45,7 @@ params_lbfgs = Flux.params(model_lbfgs);
 
 # LBFGS
 lossfun, gradfun, fg!, p0 = optfuns(loss_lbfgs, params_lbfgs)
-res = Optim.optimize(Optim.only_fg!(fg!), p0, Optim.Options(iterations=400, store_trace=true))
+res = Optim.optimize(Optim.only_fg!(fg!), p0, Optim.Options(iterations=500, store_trace=true))
 
 best_params_PM_lbfgs = res.minimizer
 #copy flattened optimized params 
