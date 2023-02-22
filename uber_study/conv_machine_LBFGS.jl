@@ -7,6 +7,7 @@ using ParametricMachinesDemos
 using Optim
 using FluxOptTools
 using uber_parametric_machines
+using Random
 
 data_apr, data_may, data_jun, data_jul, data_aug, data_sep = load_data();
 
@@ -18,8 +19,8 @@ y_lbfgs = film[:,:, 25:24*28,:]
 x_lbfgs, max, min = standardize_data(x_lbfgs);
 y_lbfgs = standardize_data(y_lbfgs, max, min);
 
-x_lbfgs = x_lbfgs[11:50, 11:50,:,:]
-y_lbfgs = y_lbfgs[11:50, 11:50,:,:]
+x_lbfgs = x_lbfgs[15:44, 15:44, :,:]
+y_lbfgs = y_lbfgs[15:44, 15:44, :,:]
 
 x_lbfgs = Flux.unsqueeze(x_lbfgs, dims=4)
 y_lbfgs = Flux.unsqueeze(y_lbfgs, dims=4)
@@ -31,7 +32,7 @@ data = DataLoader((x_lbfgs, y_lbfgs));
 # Dimensions
 dimensions = [1,2,4,8];
 
-machine_lbfgs = ConvMachine(dimensions, sigmoid; pad=(1,1,1,1,10,0)); #tanh, 5
+machine_lbfgs = ConvMachine(dimensions, sigmoid; pad=(1,1,1,1,24,0)); #tanh, 5
 
 model_lbfgs = Flux.Chain(machine_lbfgs, Conv((1,1,1), sum(dimensions) => 1)) |> f64;
 
@@ -42,19 +43,33 @@ loss_lbfgs() = Flux.Losses.mse(model_lbfgs(x_lbfgs), y_lbfgs);
 
 params_lbfgs = Flux.params(model_lbfgs);
 
+best_params = []
+res_lbfgs = map(1:1) do i
+    @show i
+    Random.seed!(i)
+    model_lbfgs = Flux.Chain(machine_lbfgs, Conv((1,1,1), sum(dimensions) => 1)) |> f64;
+    loss_lbfgs() = Flux.Losses.mse(model_lbfgs(x_lbfgs), y_lbfgs);
+    pars = Flux.params(model_lbfgs)
+    lossfun, gradfun, fg!, p0 = optfuns(loss_lbfgs, pars)
+    res = Optim.optimize(Optim.only_fg!(fg!), p0, LBFGS(), Optim.Options(iterations=10, store_trace=true))
+    push!(best_params, res.minimizer)
+    res
+end
 
-# LBFGS
-lossfun, gradfun, fg!, p0 = optfuns(loss_lbfgs, params_lbfgs)
-res = Optim.optimize(Optim.only_fg!(fg!), p0, Optim.Options(iterations=500, store_trace=true))
+valuetrace(r) = getfield.(r.trace, :value)
+valuetraces = valuetrace.(res_lbfgs)
+plot(valuetraces, xscale=:identity, lab="", ylim = (0,0.001))
+savefig("visualization/LBFGS/losses/loss_10_iterations_final_part")
 
-best_params_PM_lbfgs = res.minimizer
+
+best_params_PM_lbfgs = []
 #copy flattened optimized params 
-copy!(params_lbfgs, best_params_PM_lbfgs)
+copy!(best_params_PM_lbfgs, best_params)
 
 Flux.loadparams!(model_lbfgs, params_lbfgs)
 
-
-Flux.Losses.mse(model_lbfgs(x_lbfgs), y_lbfgs)
+heatmap(m_lbfgs[:,:,648-12], color=:thermal, clims=(0, 1))
+savefig("visualization/LBFGS/predictions/prediction_LBFGS_hour_12.png")
 
 # Metrics
 
@@ -89,7 +104,7 @@ error_test_set_mae_LBFGS = Flux.Losses.mae(pred, gt)
 # Model Naive 1
 error_naive1_hour_test_LBFGS = []
 for hour in 1:h
-    push!(error_naive1_hour_test_LBFGS, Flux.Losses.mae(zeros(27,27,1,1,1), y_lbfgs[:,:,h*(d_test-1)+hour,:,:])) 
+    push!(error_naive1_hour_test_LBFGS, Flux.Losses.mae(zeros(30,30,1,1,1), y_lbfgs[:,:,h*(d_test-1)+hour,:,:])) 
 end
 error_naive1_hour_test_LBFGS
 

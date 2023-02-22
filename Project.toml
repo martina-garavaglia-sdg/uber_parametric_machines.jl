@@ -4,12 +4,14 @@ authors = ["Martina-Garavaglia"]
 version = "0.1.0"
 
 [deps]
+BSON = "fbb218c0-5317-5bc6-957e-2ee96dd4b1f0"
 CSV = "336ed68f-0bac-5ca0-87d4-7b16caf5d00b"
 DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
 Dates = "ade2ca70-3891-5945-98fb-dc099432e06a"
 DelimitedFiles = "8bb1440f-4735-579b-a4ab-409b98df4dab"
 Flux = "587475ba-b771-5e3f-ad9e-33799f191a9c"
 FluxOptTools = "ca11d760-9bce-11e9-0b7e-4f72fcadb4f9"
+ForecastAccuracy = "b9d94c12-295a-11ea-066b-bff6e5bc6a33"
 GeohashHilbert = "6320efe0-8d16-11e8-2e58-678c92c371c6"
 Numerics = "8b6e5320-caf2-4a3d-ab96-070b5f3e7804"
 Optim = "429524aa-4258-5aef-a3af-852621145aeb"
